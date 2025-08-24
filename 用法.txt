@@ -1,0 +1,81 @@
+NBT 转换脚本使用说明
+简介
+这是一个用于在 Minecraft Netease Mod API NBT 格式和玩家可读的 NBT 字符串格式之间进行相互转换的 Python 脚本。
+
+快速开始
+1. 将玩家可读NBT转换为Mod API格式
+使用 parse_readable_nbt_string() 函数解析字符串，然后使用 readable_to_api() 函数将其转换为 API 格式。
+
+import json
+from your_script_name import parse_readable_nbt_string, readable_to_api
+
+# 定义一个玩家可读的NBT字符串
+readable_nbt_str = "Items:[{Slot:0b,Damage:0s,Count:99b,Name:'minecraft:netherite_sword',tag:{display:{Lore:['aaaa']}}}]"
+
+# 解析并转换
+readable_dict = parse_readable_nbt_string(readable_nbt_str)
+api_format = readable_to_api(readable_dict)
+
+# 打印结果
+print("转换后的API格式：")
+print(json.dumps(api_format, indent=4))
+
+2. 将Mod API格式转换为玩家可读NBT
+使用 api_to_readable() 函数将 API 格式的字典转换回可读字符串。
+
+from your_script_name import api_to_readable
+
+# 假设这是一个Mod API NBT字典
+api_format = {
+    "Items": [
+        {
+            "Slot": {"__type__": 1, "__value__": 0},
+            "Damage": {"__type__": 2, "__value__": 0},
+            "Count": {"__type__": 1, "__value__": 99},
+            "Name": {"__type__": 8, "__value__": "minecraft:netherite_sword"},
+            "tag": {
+                "display": {
+                    "Lore": [
+                        {"__type__": 8, "__value__": "aaaa"}
+                    ]
+                }
+            }
+        }
+    ]
+}
+
+# 转换回可读字符串
+readable_nbt_str = api_to_readable(api_format)
+
+# 打印结果
+print("转换后的可读NBT字符串：")
+print(readable_nbt_str)
+
+主要函数
+parse_readable_nbt_string(nbt_string: str) -> dict
+功能: 将玩家可读的NBT字符串解析为一个 Python 字典，并自动识别和保留数据类型后缀（如 b, s, d）。
+
+参数: nbt_string - 要解析的玩家可读NBT字符串。
+
+返回值: 一个嵌套的 Python 字典，表示解析后的NBT结构。如果解析失败，将返回一个空字典并打印错误。
+
+readable_to_api(readable_nbt: dict) -> dict
+功能: 将由 parse_readable_nbt_string 函数生成的 Python 字典，转换为符合 Mod API 规范的字典格式。
+
+参数: readable_nbt - 由 parse_readable_nbt_string 返回的字典。
+
+返回值: 符合 Mod API NBT 格式的字典。
+
+api_to_readable(api_nbt: dict) -> str
+功能: 将 Mod API 格式的字典转换回玩家可读的 NBT 字符串。
+
+参数: api_nbt - 符合 Mod API NBT 格式的字典。
+
+返回值: 玩家可读的 NBT 字符串。
+
+注意事项
+列表 (TAG_List): 根据 NBT 规范，列表内的所有标签必须是无名且同类型的。脚本会严格遵守此规则，如果发现有名标签（例如 [..., NamedItem:2s]），将抛出 ValueError。
+
+字符串引号: 脚本仅支持使用单引号 ' ' 包裹的字符串。
+
+顶级标签: 顶层标签可以是单个有名标签（如 Items:[...]）或一个复合标签（如 {Items:[...]}）。
